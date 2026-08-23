@@ -1,0 +1,14 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ActionResult",
+  "type": "object",
+  "properties": {
+    "task_id": { "type": "string", "format": "uuid" },
+    "action_id": { "type": "string", "format": "uuid" },
+    "success": { "type": "boolean" },
+    "data": { "type": "object" },
+    "error": { "type": ["string", "null"] },
+    "metadata": { "type": "object" }
+  },
+  "required": ["task_id", "action_id", "success", "data", "metadata"]
+}

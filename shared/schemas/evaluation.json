@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Evaluation",
+  "type": "object",
+  "properties": {
+    "task_id": { "type": "string", "format": "uuid" },
+    "status": {
+      "type": "string",
+      "enum": ["pass", "incomplete", "fail"]
+    },
+    "requirements_met": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "requirements_missing": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "reason": { "type": "string" },
+    "recommended_action": { "type": ["string", "null"] }
+  },
+  "required": ["task_id", "status", "requirements_met", "requirements_missing", "reason"]
+}

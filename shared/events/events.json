@@ -1,0 +1,13 @@
+{
+  "TASK_CREATED": "task.created",
+  "PLAN_CREATED": "plan.created",
+  "ACTION_STARTED": "action.started",
+  "ACTION_COMPLETED": "action.completed",
+  "OBSERVATION_RECEIVED": "observation.received",
+  "EVALUATION_STARTED": "evaluation.started",
+  "EVALUATION_COMPLETED": "evaluation.completed",
+  "REPLAN_STARTED": "replan.started",
+  "PLAN_UPDATED": "plan.updated",
+  "TASK_COMPLETED": "task.completed",
+  "TASK_FAILED": "task.failed"
+}

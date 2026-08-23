@@ -1,0 +1,22 @@
+# Node
+node_modules/
+dist/
+build/
+.npm/
+
+# Environment
+.env
+.env.local
+
+# Python
+__pycache__/
+*.pyc
+venv/
+.venv/
+
+# IDEs
+.vscode/
+.idea/
+
+# n8n specific
+n8n_data/

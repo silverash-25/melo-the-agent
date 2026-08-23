@@ -1,0 +1,18 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Observation",
+  "type": "object",
+  "properties": {
+    "task_id": { "type": "string", "format": "uuid" },
+    "action_id": { "type": "string", "format": "uuid" },
+    "summary": { "type": "string" },
+    "relevant": { "type": "boolean" },
+    "complete": { "type": "boolean" },
+    "quality": { "type": "number", "minimum": 0, "maximum": 1 },
+    "issues": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  },
+  "required": ["task_id", "action_id", "summary", "relevant", "complete", "quality", "issues"]
+}
