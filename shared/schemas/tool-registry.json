@@ -1,0 +1,36 @@
+{
+    "tools": [
+        {
+            "name": "web_search",
+            "description": "Searches Wikipedia for current factual information.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "query": {
+                        "type": "string",
+                        "description": "The exact search term to look up."
+                    }
+                },
+                "required": [
+                    "query"
+                ]
+            }
+        },
+        {
+            "name": "read_pdf",
+            "description": "Extracts raw text from a PDF file.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "file_url": {
+                        "type": "string",
+                        "description": "The internet URL of the PDF to read."
+                    }
+                },
+                "required": [
+                    "file_url"
+                ]
+            }
+        }
+    ]
+}
