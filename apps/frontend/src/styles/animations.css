@@ -1,0 +1,109 @@
+/* ── MELO Animations ── */
+
+/* Pulse glow — used on active pipeline nodes and current steps */
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 8px var(--cyan-glow); }
+  50%      { box-shadow: 0 0 24px var(--cyan-glow), 0 0 48px rgba(0, 229, 255, 0.1); }
+}
+
+/* Pulse dot — used on active status indicators */
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.6; transform: scale(1.3); }
+}
+
+/* Slide in from top — new timeline entries */
+@keyframes slide-in-top {
+  from { opacity: 0; transform: translateY(-16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Slide in from bottom — result panel */
+@keyframes slide-in-bottom {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Fade in */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Scale in — cards appearing */
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.92); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* Horizontal scan line — header ambience */
+@keyframes scan-line {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* Glow text — MELO branding */
+@keyframes glow-text {
+  0%, 100% { text-shadow: 0 0 12px var(--cyan-glow); }
+  50%      { text-shadow: 0 0 24px var(--cyan-glow), 0 0 48px rgba(0, 229, 255, 0.15); }
+}
+
+/* Replan shake — dramatic visual cue when replanning */
+@keyframes replan-shake {
+  0%       { transform: translateX(0); }
+  10%      { transform: translateX(-3px) rotate(-0.5deg); }
+  20%      { transform: translateX(3px) rotate(0.5deg); }
+  30%      { transform: translateX(-2px); }
+  40%      { transform: translateX(2px); }
+  50%      { transform: translateX(0); }
+  100%     { transform: translateX(0); }
+}
+
+/* Replan pulse — amber glow when replanning */
+@keyframes replan-pulse {
+  0%, 100% { border-color: var(--amber); box-shadow: 0 0 12px var(--amber-glow); }
+  50%      { border-color: var(--amber-dim); box-shadow: 0 0 32px var(--amber-glow), 0 0 64px rgba(255, 171, 0, 0.1); }
+}
+
+/* Spinner — tool activity */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* Typing cursor blink */
+@keyframes cursor-blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+/* Progress bar shimmer */
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* Pipeline connector flow — animated dash along the pipeline */
+@keyframes flow-dash {
+  from { stroke-dashoffset: 16; }
+  to   { stroke-dashoffset: 0; }
+}
+
+/* Success celebration glow */
+@keyframes success-glow {
+  0%   { box-shadow: 0 0 0 rgba(0, 230, 118, 0); }
+  50%  { box-shadow: 0 0 40px var(--emerald-glow), 0 0 80px rgba(0, 230, 118, 0.1); }
+  100% { box-shadow: 0 0 20px var(--emerald-glow); }
+}
+
+/* ── Utility Classes ── */
+.anim-pulse-glow   { animation: pulse-glow 2s ease-in-out infinite; }
+.anim-pulse-dot    { animation: pulse-dot 1.5s ease-in-out infinite; }
+.anim-slide-in-top { animation: slide-in-top 0.4s var(--ease-out) both; }
+.anim-slide-in-bottom { animation: slide-in-bottom 0.5s var(--ease-out) both; }
+.anim-fade-in      { animation: fade-in 0.3s ease both; }
+.anim-scale-in     { animation: scale-in 0.4s var(--ease-spring) both; }
+.anim-replan-shake { animation: replan-shake 0.6s ease both; }
+.anim-replan-pulse { animation: replan-pulse 1.5s ease-in-out infinite; }
+.anim-spin         { animation: spin 1s linear infinite; }
+.anim-success-glow { animation: success-glow 1s ease both; }
