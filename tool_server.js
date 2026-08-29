@@ -15,11 +15,11 @@ const server = http.createServer((req, res) => {
             const data = JSON.parse(body);
             res.setHeader('Content-Type', 'application/json');
             
-            if (req.url === '/read_file') {
+            if (req.url === '/file_read') {
                 const content = fs.readFileSync(path.join(SANDBOX_DIR, data.filename), 'utf8');
                 res.end(JSON.stringify({ content }));
             } 
-            else if (req.url === '/write_file') {
+            else if (req.url === '/file_write') {
                 fs.writeFileSync(path.join(SANDBOX_DIR, data.filename), data.content, 'utf8');
                 res.end(JSON.stringify({ message: 'File written successfully' }));
             }
