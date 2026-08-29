@@ -1,36 +1,332 @@
 {
-    "tools": [
-        {
-            "name": "web_search",
-            "description": "Searches Wikipedia for current factual information.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "query": {
-                        "type": "string",
-                        "description": "The exact search term to look up."
-                    }
-                },
-                "required": [
-                    "query"
-                ]
-            }
-        },
-        {
-            "name": "read_pdf",
-            "description": "Extracts raw text from a PDF file.",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "file_url": {
-                        "type": "string",
-                        "description": "The internet URL of the PDF to read."
-                    }
-                },
-                "required": [
-                    "file_url"
-                ]
-            }
-        }
-    ]
+    "version":  "1.0.0",
+    "description":  "MELO Tool Registry — lists all capabilities available to the Brain\u0027s Decision Engine.",
+    "tools":  [
+                  {
+                      "name":  "web_search",
+                      "description":  "Searches Wikipedia for factual information. Returns top 3 matching results with titles, descriptions, and URLs.",
+                      "input_schema":  {
+                                           "type":  "object",
+                                           "properties":  {
+                                                              "query":  {
+                                                                            "type":  "string",
+                                                                            "description":  "The search term to look up."
+                                                                        }
+                                                          },
+                                           "required":  [
+                                                            "query"
+                                                        ]
+                                       },
+                      "output_schema":  {
+                                            "type":  "object",
+                                            "properties":  {
+                                                               "results":  {
+                                                                               "type":  "array",
+                                                                               "description":  "Array of search result arrays from Wikipedia OpenSearch API."
+                                                                           }
+                                                           }
+                                        },
+                      "permissions":  [
+
+                                      ],
+                      "timeout_ms":  10000,
+                      "status":  "active"
+                  },
+                  {
+                      "name":  "pdf_extract",
+                      "description":  "Downloads a PDF from a URL and extracts its raw text content.",
+                      "input_schema":  {
+                                           "type":  "object",
+                                           "properties":  {
+                                                              "file_url":  {
+                                                                               "type":  "string",
+                                                                               "description":  "The internet URL of the PDF to download and extract."
+                                                                           }
+                                                          },
+                                           "required":  [
+                                                            "file_url"
+                                                        ]
+                                       },
+                      "output_schema":  {
+                                            "type":  "object",
+                                            "properties":  {
+                                                               "text":  {
+                                                                            "type":  "string",
+                                                                            "description":  "The extracted text content of the PDF."
+                                                                        }
+                                                           }
+                                        },
+                      "permissions":  [
+                                          "network"
+                                      ],
+                      "timeout_ms":  30000,
+                      "status":  "active"
+                  },
+                  {
+                      "name":  "http_request",
+                      "description":  "Makes a generic HTTP request to any URL. Supports GET, POST, PUT, DELETE methods.",
+                      "input_schema":  {
+                                           "type":  "object",
+                                           "properties":  {
+                                                              "url":  {
+                                                                          "type":  "string",
+                                                                          "description":  "The URL to request."
+                                                                      },
+                                                              "method":  {
+                                                                             "type":  "string",
+                                                                             "enum":  [
+                                                                                          "GET",
+                                                                                          "POST",
+                                                                                          "PUT",
+                                                                                          "DELETE"
+                                                                                      ],
+                                                                             "description":  "The HTTP method."
+                                                                         },
+                                                              "body":  {
+                                                                           "type":  "object",
+                                                                           "description":  "Optional JSON payload for POST/PUT requests."
+                                                                       }
+                                                          },
+                                           "required":  [
+                                                            "url",
+                                                            "method"
+                                                        ]
+                                       },
+                      "output_schema":  {
+                                            "type":  "object",
+                                            "description":  "The raw JSON response from the target URL."
+                                        },
+                      "permissions":  [
+                                          "network"
+                                      ],
+                      "timeout_ms":  15000,
+                      "status":  "active"
+                  },
+                  {
+                      "name":  "file_read",
+                      "description":  "Reads the text content of a file from the secure sandbox workspace.",
+                      "input_schema":  {
+                                           "type":  "object",
+                                           "properties":  {
+                                                              "filename":  {
+                                                                               "type":  "string",
+                                                                               "description":  "The filename to read (must be inside the sandbox folder, no path traversal allowed)."
+                                                                           }
+                                                          },
+                                           "required":  [
+                                                            "filename"
+                                                        ]
+                                       },
+                      "output_schema":  {
+                                            "type":  "object",
+                                            "properties":  {
+                                                               "content":  {
+                                                                               "type":  "string",
+                                                                               "description":  "The text content of the file."
+                                                                           }
+                                                           }
+                                        },
+                      "permissions":  [
+                                          "filesystem_read"
+                                      ],
+                      "timeout_ms":  5000,
+                      "status":  "active"
+                  },
+                  {
+                      "name":  "file_write",
+                      "description":  "Writes text content to a file in the secure sandbox workspace.",
+                      "input_schema":  {
+                                           "type":  "object",
+                                           "properties":  {
+                                                              "filename":  {
+                                                                               "type":  "string",
+                                                                               "description":  "The filename to write (saved inside sandbox folder, no path traversal allowed)."
+                                                                           },
+                                                              "content":  {
+                                                                              "type":  "string",
+                                                                              "description":  "The text content to write into the file."
+                                                                          }
+                                                          },
+                                           "required":  [
+                                                            "filename",
+                                                            "content"
+                                                        ]
+                                       },
+                      "output_schema":  {
+                                            "type":  "object",
+                                            "properties":  {
+                                                               "message":  {
+                                                                               "type":  "string",
+                                                                               "description":  "Confirmation message."
+                                                                           }
+                                                           }
+                                        },
+                      "permissions":  [
+                                          "filesystem_write"
+                                      ],
+                      "timeout_ms":  5000,
+                      "status":  "active"
+                  },
+                  {
+                      "name":  "data_analyze",
+                      "description":  "Analyzes data from a specified CSV or JSON file in the sandbox and returns statistical summaries.",
+                      "input_schema":  {
+                                           "type":  "object",
+                                           "properties":  {
+                                                              "filename":  {
+                                                                               "type":  "string",
+                                                                               "description":  "The file to analyze."
+                                                                           },
+                                                              "query":  {
+                                                                            "type":  "string",
+                                                                            "description":  "The specific question or metric to analyze."
+                                                                        }
+                                                          },
+                                           "required":  [
+                                                            "filename",
+                                                            "query"
+                                                        ]
+                                       },
+                      "output_schema":  {
+                                            "type":  "object",
+                                            "properties":  {
+                                                               "analysis":  {
+                                                                                "type":  "string",
+                                                                                "description":  "The result of the analysis."
+                                                                            }
+                                                           }
+                                        },
+                      "permissions":  [
+                                          "filesystem_read"
+                                      ],
+                      "timeout_ms":  15000,
+                      "status":  "active"
+                  },
+                  {
+                      "name":  "code_execute",
+                      "description":  "Safely executes a Python script inside the sandbox environment.",
+                      "input_schema":  {
+                                           "type":  "object",
+                                           "properties":  {
+                                                              "language":  {
+                                                                               "type":  "string",
+                                                                               "enum":  [
+                                                                                            "python"
+                                                                                        ],
+                                                                               "description":  "The programming language."
+                                                                           },
+                                                              "script":  {
+                                                                             "type":  "string",
+                                                                             "description":  "The script code to execute."
+                                                                         }
+                                                          },
+                                           "required":  [
+                                                            "language",
+                                                            "script"
+                                                        ]
+                                       },
+                      "output_schema":  {
+                                            "type":  "object",
+                                            "properties":  {
+                                                               "stdout":  {
+                                                                              "type":  "string",
+                                                                              "description":  "Standard output."
+                                                                          },
+                                                               "stderr":  {
+                                                                              "type":  "string",
+                                                                              "description":  "Standard error."
+                                                                          }
+                                                           }
+                                        },
+                      "permissions":  [
+                                          "execute"
+                                      ],
+                      "timeout_ms":  30000,
+                      "status":  "active"
+                  },
+                  {
+                      "name":  "github",
+                      "description":  "Interacts with GitHub API to read repository information.",
+                      "input_schema":  {
+                                           "type":  "object",
+                                           "properties":  {
+                                                              "owner":  {
+                                                                            "type":  "string",
+                                                                            "description":  "Repository owner."
+                                                                        },
+                                                              "repo":  {
+                                                                           "type":  "string",
+                                                                           "description":  "Repository name."
+                                                                       },
+                                                              "action":  {
+                                                                             "type":  "string",
+                                                                             "enum":  [
+                                                                                          "get_issues",
+                                                                                          "get_commits"
+                                                                                      ],
+                                                                             "description":  "Action to perform."
+                                                                         }
+                                                          },
+                                           "required":  [
+                                                            "owner",
+                                                            "repo",
+                                                            "action"
+                                                        ]
+                                       },
+                      "output_schema":  {
+                                            "type":  "object",
+                                            "properties":  {
+                                                               "results":  {
+                                                                               "type":  "array",
+                                                                               "description":  "Array of GitHub data objects."
+                                                                           }
+                                                           }
+                                        },
+                      "permissions":  [
+                                          "network"
+                                      ],
+                      "timeout_ms":  15000,
+                      "status":  "active"
+                  },
+                  {
+                      "name":  "document_generate",
+                      "description":  "Generates a Markdown document and saves it to the sandbox.",
+                      "input_schema":  {
+                                           "type":  "object",
+                                           "properties":  {
+                                                              "title":  {
+                                                                            "type":  "string",
+                                                                            "description":  "Title of the document."
+                                                                        },
+                                                              "content":  {
+                                                                              "type":  "string",
+                                                                              "description":  "Markdown body content."
+                                                                          },
+                                                              "filename":  {
+                                                                               "type":  "string",
+                                                                               "description":  "Name of the file to save."
+                                                                           }
+                                                          },
+                                           "required":  [
+                                                            "title",
+                                                            "content",
+                                                            "filename"
+                                                        ]
+                                       },
+                      "output_schema":  {
+                                            "type":  "object",
+                                            "properties":  {
+                                                               "message":  {
+                                                                               "type":  "string",
+                                                                               "description":  "Success message."
+                                                                           }
+                                                           }
+                                        },
+                      "permissions":  [
+                                          "filesystem_write"
+                                      ],
+                      "timeout_ms":  5000,
+                      "status":  "active"
+                  }
+              ]
 }

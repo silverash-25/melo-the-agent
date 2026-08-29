@@ -1,0 +1,1 @@
+{ "type": "object", "properties": { "task_id": { "type": "string" }, "action_id": { "type": "string" }, "success": { "type": "boolean" }, "data": { "type": "null" }, "error": { "type": "object", "properties": { "code": { "type": "string" }, "message": { "type": "string" } } } } }
