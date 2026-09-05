@@ -29,9 +29,9 @@ export function initApp(root) {
   const store = createTaskStore();
   let eventSource = null;
 
-  // Determine mode: use 'mock' unless ?mode=sse or ?mode=polling
+  // Determine mode: use 'sse' unless ?mode=mock or ?mode=polling
   const params = new URLSearchParams(window.location.search);
-  const mode = params.get('mode') || 'mock';
+  const mode = params.get('mode') || 'sse';
 
   // API base URL from environment
   const apiBase = import.meta.env.VITE_API_URL || '';

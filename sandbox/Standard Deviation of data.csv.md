@@ -1,0 +1,1 @@
+The data.csv file contains three values: 10, 20, 15. The sample standard deviation of these values is 5.0.

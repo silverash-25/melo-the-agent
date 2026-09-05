@@ -14,7 +14,9 @@ export function renderTaskHeader(container) {
   const el = document.createElement('div');
   el.className = 'task-header';
   el.id = 'task-header';
+  el.style.position = 'relative';
   el.innerHTML = `
+    <div id="task-progress-bar" class="task-progress-bar"></div>
     <div class="task-header__goal">
       <div class="task-header__label">Goal</div>
       <div class="task-header__goal-text" id="task-goal-text">—</div>
@@ -44,6 +46,16 @@ export function updateTaskHeader(state) {
   if (!goalText) return;
 
   goalText.textContent = state.goal || '—';
+
+  const progressBar = document.getElementById('task-progress-bar');
+  if (progressBar) {
+    const isRunning = ['created', 'planning', 'executing', 'observing', 'evaluating', 'replanning'].includes(state.status);
+    if (isRunning) {
+      progressBar.classList.add('task-progress-bar--active');
+    } else {
+      progressBar.classList.remove('task-progress-bar--active');
+    }
+  }
 
   // Status badge
   const { label, className } = getStatusBadge(state.status);

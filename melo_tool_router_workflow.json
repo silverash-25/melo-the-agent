@@ -1,0 +1,302 @@
+{
+  "name": "MELO Tool Router",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "melo-tool-action",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [ 0, 300 ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const req = $input.first().json.body || $input.first().json;\n\nif (!req.task_id || !req.action_id || !req.action || !req.parameters) {\n  return [{\n    json: {\n      isValid: false,\n      task_id: req.task_id || 'unknown',\n      action_id: req.action_id || 'unknown',\n      action: req.action || 'unknown',\n      error: { code: 'VALIDATION_ERROR', message: 'Missing required fields (task_id, action_id, action, parameters)' }\n    }\n  }];\n}\n\nreturn [{\n  json: {\n    isValid: true,\n    task_id: req.task_id,\n    action_id: req.action_id,\n    action: req.action,\n    parameters: req.parameters\n  }\n}];"
+      },
+      "name": "Validate Request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [ 200, 300 ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.isValid }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "name": "If Valid",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [ 400, 300 ]
+    },
+    {
+      "parameters": {
+        "mode": "expression",
+        "output": "={{ $json.action }}",
+        "rules": {
+          "rules": [
+            {
+              "output": "read_file"
+            },
+            {
+              "output": "write_file"
+            },
+            {
+              "output": "code_execute"
+            },
+            {
+              "output": "data_analyze"
+            }
+          ]
+        },
+        "fallbackOutput": "unknown"
+      },
+      "name": "Switch Action",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 1,
+      "position": [ 600, 200 ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://127.0.0.1:3001/read_file",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "filename", "value": "={{ $json.parameters.filename }}" }
+          ]
+        },
+        "options": {
+          "allowUnauthorizedCerts": true,
+          "ignoreResponseCode": true
+        }
+      },
+      "name": "read_file",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [ 800, 0 ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://127.0.0.1:3001/write_file",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "filename", "value": "={{ $json.parameters.filename }}" },
+            { "name": "content", "value": "={{ $json.parameters.content }}" }
+          ]
+        },
+        "options": {
+          "allowUnauthorizedCerts": true,
+          "ignoreResponseCode": true
+        }
+      },
+      "name": "write_file",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [ 800, 150 ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://127.0.0.1:3001/code_execute",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "script", "value": "={{ $json.parameters.script }}" }
+          ]
+        },
+        "options": {
+          "allowUnauthorizedCerts": true,
+          "ignoreResponseCode": true
+        }
+      },
+      "name": "code_execute",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [ 800, 300 ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://127.0.0.1:3001/data_analyze",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "filename", "value": "={{ $json.parameters.filename }}" }
+          ]
+        },
+        "options": {
+          "allowUnauthorizedCerts": true,
+          "ignoreResponseCode": true
+        }
+      },
+      "name": "data_analyze",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [ 800, 450 ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const originalReq = $('Validate Request').first().json;\nreturn [{\n  json: {\n    task_id: originalReq.task_id,\n    action_id: originalReq.action_id,\n    success: false,\n    data: null,\n    error: { code: 'UNKNOWN_ACTION', message: 'Action ' + originalReq.action + ' is not supported' },\n    metadata: { tool: originalReq.action }\n  }\n}];"
+      },
+      "name": "Unknown Action Format",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [ 800, 600 ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const invalidReq = $('Validate Request').first().json;\nreturn [{\n  json: {\n    task_id: invalidReq.task_id,\n    action_id: invalidReq.action_id,\n    success: false,\n    data: null,\n    error: invalidReq.error,\n    metadata: { tool: invalidReq.action }\n  }\n}];"
+      },
+      "name": "Validation Error Format",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [ 600, 500 ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const originalReq = $('Validate Request').first().json;\nconst res = $input.first().json;\nconst success = !res.error && !res.message?.includes('Error'); // Add HTTP status check if desired\nreturn [{\n  json: {\n    task_id: originalReq.task_id,\n    action_id: originalReq.action_id,\n    success: success,\n    data: success ? res : null,\n    error: success ? null : { code: 'TOOL_ERROR', message: res.error || res.message || 'Unknown error during execution' },\n    metadata: { tool: originalReq.action }\n  }\n}];"
+      },
+      "name": "Format Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [ 1100, 200 ]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Validate Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Request": {
+      "main": [
+        [
+          {
+            "node": "If Valid",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Valid": {
+      "main": [
+        [
+          {
+            "node": "Switch Action",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Validation Error Format",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch Action": {
+      "main": [
+        [
+          {
+            "node": "read_file",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "write_file",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "code_execute",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "data_analyze",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Unknown Action Format",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "read_file": {
+      "main": [
+        [
+          {
+            "node": "Format Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "write_file": {
+      "main": [
+        [
+          {
+            "node": "Format Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "code_execute": {
+      "main": [
+        [
+          {
+            "node": "Format Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "data_analyze": {
+      "main": [
+        [
+          {
+            "node": "Format Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

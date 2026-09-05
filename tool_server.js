@@ -1,9 +1,9 @@
 const http = require('http');
 const fs = require('fs');
-const { execSync } = require('child_process');
+const { execFileSync } = require('child_process');
 const path = require('path');
 
-const SANDBOX_DIR = 'C:/Users/Maria/OneDrive/Projects/melo/sandbox';
+const SANDBOX_DIR = path.join(__dirname, 'sandbox');
 
 const server = http.createServer((req, res) => {
     if (req.method !== 'POST') return res.end('Only POST');
@@ -12,23 +12,58 @@ const server = http.createServer((req, res) => {
     req.on('data', chunk => body += chunk.toString());
     req.on('end', () => {
         try {
-            const data = JSON.parse(body);
             res.setHeader('Content-Type', 'application/json');
             
-            if (req.url === '/file_read') {
-                const content = fs.readFileSync(path.join(SANDBOX_DIR, data.filename), 'utf8');
+            // Parse URL to handle query parameters
+            const reqUrl = new URL(req.url, `http://${req.headers.host}`);
+            const pathname = reqUrl.pathname;
+            
+            // Parse body
+            let data = {};
+            if (body) {
+                try {
+                    data = JSON.parse(body);
+                } catch (e) {
+                    // Fallback for form-urlencoded
+                    const params = new URLSearchParams(body);
+                    for (const [key, value] of params.entries()) {
+                        data[key] = value;
+                    }
+                }
+            }
+            
+            const resolveSafePath = (filename) => {
+                const resolved = path.resolve(SANDBOX_DIR, filename);
+                if (!resolved.startsWith(path.resolve(SANDBOX_DIR))) {
+                    throw new Error("Access denied: Invalid path");
+                }
+                return resolved;
+            };
+
+            if (pathname === '/file_read' || pathname === '/read_file') {
+                const targetPath = resolveSafePath(data.filename);
+                const content = fs.readFileSync(targetPath, 'utf8');
                 res.end(JSON.stringify({ content }));
             } 
-            else if (req.url === '/file_write') {
-                fs.writeFileSync(path.join(SANDBOX_DIR, data.filename), data.content, 'utf8');
+            else if (pathname === '/file_write' || pathname === '/write_file') {
+                const targetPath = resolveSafePath(data.filename);
+                fs.mkdirSync(path.dirname(targetPath), { recursive: true });
+                fs.writeFileSync(targetPath, data.content, 'utf8');
                 res.end(JSON.stringify({ message: 'File written successfully' }));
             }
-            else if (req.url === '/code_execute') {
-                const output = execSync(`node -e "` + data.script.replace(/"/g, '\\"') + `"`).toString();
+            else if (pathname === '/code_execute') {
+                // n8n sends script as a query parameter!
+                const script = reqUrl.searchParams.get('script') || data.script;
+                if (!script) throw new Error("Missing script parameter");
+                
+                // Using execFileSync to avoid shell injection vulnerabilities
+                const output = execFileSync('python', ['-c', script], { encoding: 'utf8', cwd: SANDBOX_DIR });
                 res.end(JSON.stringify({ stdout: output, stderr: '' }));
             }
-            else if (req.url === '/data_analyze') {
-                const output = execSync(`python -c "import pandas as pd; print(pd.read_csv('` + path.join(SANDBOX_DIR, data.filename).replace(/\\/g, '/') + `').describe())"`).toString();
+            else if (pathname === '/data_analyze') {
+                const targetPath = resolveSafePath(data.filename);
+                const pyScript = `import pandas as pd\nprint(pd.read_csv(r'${targetPath}').describe())`;
+                const output = execFileSync('python', ['-c', pyScript], { encoding: 'utf8', cwd: SANDBOX_DIR });
                 res.end(JSON.stringify({ analysis: output }));
             }
             else {
@@ -36,11 +71,13 @@ const server = http.createServer((req, res) => {
                 res.end(JSON.stringify({ error: 'Endpoint not found' }));
             }
         } catch (e) {
+            fs.appendFileSync(path.join(__dirname, 'error.log'), new Date().toISOString() + ' ' + req.url + ' ' + e.toString() + '\\n' + (e.stack || '') + '\\n');
+            res.statusCode = 500;
             res.end(JSON.stringify({ error: e.toString() }));
         }
     });
 });
 
-server.listen(3001, () => {
-    console.log('Tool server running on port 3001');
+server.listen(3001, '127.0.0.1', () => {
+    console.log('Tool server running on http://127.0.0.1:3001');
 });
